@@ -16,4 +16,4 @@ sudo apt install dconf-editor
 
 실행하고 `org > gnome > desktop > wm > keybindings`로 가서
 
-`move-to-workspace-up`과 `move-to-workspace-down`을 변경해준 뒤 로그아웃 하고나면 변경 완료
+`switch-to-workspace-up`과 `switch-to-workspace-down`을 변경해준 뒤 로그아웃 하고나면 변경 완료
