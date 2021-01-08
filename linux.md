@@ -28,13 +28,15 @@
   - `apt-get upgrade` : 앱을 최신 버전으로 업그레이드
   - `apt-get install` 키워드 : 설치
   - `apt-get remove` 키워드 : 삭제
-- wget URL : 파일 다운로드
-  - wget -O 파일이름 URL : 파일이름 지정하여 다운로드
-- find : 파일 검색
-- locate : 파일 검색(mlocate라는 db를 뒤짐 -> sudo updatedb로 업데이트)
-- whereis : 실행 파일과 매뉴얼의 위치를 출력 ($PATH와 $MANPATH에서)
-- ps : 현재 실행되고 있는 프로세스를 출력
-  - ps aux : 백그라운드에서 실행되는 프로세스도 출력
+- `wget URL` : 파일 다운로드
+  - `wget -O 파일이름 URL` : 파일이름 지정하여 다운로드
+- `find` : 파일 검색
+- `locate` : 파일 검색(mlocate라는 db를 뒤짐 -> sudo updatedb로 업데이트)
+- `whereis` : 실행 파일과 매뉴얼의 위치를 출력 ($PATH와 $MANPATH에서)
+- `ps` : 현재 실행되고 있는 프로세스를 출력
+  - `ps aux` : 백그라운드에서 실행되는 프로세스도 출력
+- `tail -f` : 파일의 마지막 10줄을 출력하되 내용이 추가될 때마다 출력
+- `rsync` : 동기화(remote sync)
 
 ---
 
@@ -120,3 +122,65 @@ daemon 시작 명령어
 |`useradd` | 사용자 생성, 모든 설정을 명시해야함.
 |`adduser` | 기본 설정(/etc/adduser.conf)으로 사용자를 생성한다.
 |`usermod` | 사용자를 수정(modify)
+
+## 권한
+
+d|rwxrwxr-x | 4 | sloth sloth | 4.0K | 1월  7 23:57 | TIL
+
+1. d : type(d = directory, - = file, l = link)
+2. rwxrwxr-x: access mode(3개씩 나눠서 owner, group, other)
+3. 4 : ??
+4. sloth sloth : owner, group
+5. 4.0K : 용량
+6. 1월 7 23:57 : 생성된 시각
+7. TIL : 디렉토리/파일명
+
+|키워드|의미|파일|디렉토리|
+|---|---|---|---|
+|r|read|읽기|읽기|
+|w|write|쓰기|쓰기|
+|x|execute|실행|접근(cd)
+
+`chmod` : 권한을 변경하는 명령어  
+
+```zsh
+chmod o+r example.txt # other에 read 추가
+chmod u-x example # user(owner)에 execute 제거
+chmod 777 example # rwxrwxrwx 로 설정
+```
+
+[chmod wikipedia](https://ko.wikipedia.org/wiki/Chmod)
+
+## 인터넷, 네트워크, 그리고 서버
+
+client와 server가 통신한다... client는 request를 보내고 server는 response를 보낸다.  
+google.com으로 접속하면 dns(domain name system) server를 조회하여 google.com의 ip address로 접속
+
+### apache 웹 서버
+
+웹 서버는 기본적으로 80번 포트를 사용  
+설정 파일: `/etc/apache2/apache2.conf`  
+document root: `var/www/html/`  
+log 파일 : `/var/log/apache2/access.log error.log`  
+
+### ssh
+
+패키지: openssh-client openssh-server
+
+`ssh 사용자@address` : 원격 접속
+
+### hosts
+
+dns server를 거치기 전에 hosts파일을 먼저 보고 일치하는 domain name이 없으면 dns server를 본다.
+
+`/etc/hosts`에 위치
+
+ip와 domain name을 적음  
+`127.0.0.1  google.com`
+
+해커의 공격 대상이 되기도 한다
+
+## ssh public private key
+
+- `ssh-keygen`: ssh 공개키 비공개키 생성 명령어
+- `ssh-copy-id`: 공개키를 대상 authorized_keys에 추가함
