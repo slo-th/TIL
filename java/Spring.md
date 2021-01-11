@@ -1,4 +1,4 @@
-# Spring framework
+# Spring framework 입문
 
 [인프런 스프링 입문 - 코드로 배우는 스프링 부트, 웹 MVC, DB 접근 기술](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EC%9E%85%EB%AC%B8-%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8/)
 
@@ -154,3 +154,110 @@ spring.datasource.username=sa
 
 > Connection 객체는 `DataSourceUtils.getConnection(DataSource)` 메소드로 생성한다.
 >> DataSource는 `SpringConfig`의 필드로 생성자를 호출할 때 생성되고 Repository 객체가 생성될 때 주입된다.
+
+## 스프링 JDBC Template
+
+- `Configuration`에서 `DataSource`를 생성시에 주입받고, `Repository` 생성시에 주입한다.
+- `Repository`는 필드로 `JdbcTemplate`를 가진다.
+  - 생성자에서 `DataSource`를 주입받아 `JdbcTemplate` 생성시 주입한다.
+
+### insert
+
+- `SimpleJdbcInsert` 객체를 사용
+- 데이터를 `Map<columnName, value>`로 래핑
+- `jdbcInsert.excuteAndReturnKey(new MapSqlParameterSource(parameters))`의 반환값을 `Number`로 저장하여 사용
+
+### select
+
+- `jdbcTemplate.query(sql, RowMapper, args...)`로 실행. `List<Member>`로 받는다.
+- `RowMapper`는 `ResultSet rs, int rowNum`을 형식인수로 갖고 `Member`를 반환하는 함수다.
+
+```java
+private RowMapper<Member> memberRowMapper() {
+        return new RowMapper<Member>() {
+            @Override
+            public Member mapRow(ResultSet rs, int rowNum) throws SQLException {
+                Member member = new Member();
+                member.setId((rs.getLong("id")));
+                member.setName(rs.getString("name"));
+                return member;
+            }
+        };
+    }
+```
+
+람다식으로 바꿀 수도 있다.
+
+```java
+private RowMapper<Member> memberRowMapper() {
+        return (rs, rowNum) -> {
+            Member member = new Member();
+            member.setId((rs.getLong("id")));
+            member.setName(rs.getString("name"));
+            return member;
+        };
+    }
+```
+
+## JPA(Java Persistence API)
+
+JPA는 Interface라서 구현체로 Hibernate를 사용한다.
+
+- `build.gradle`에 관련 라이브러리를 추가한다.
+  - `implementation 'org.springframework.boot:spring-boot-starter-data-jpa'`
+- `application.properties`에 설정을 추가한다.
+  - `spring.jpa.show-sql=true` : JPA가 생성하는 SQL을 출력한다.
+  - `spring.jpa.hibernate.ddl-auto=none` : 테이블을 자동 생성하지 않는다.
+- `Configuration`에 JPA를 사용하도록 코드를 작성한다.
+  - `DataSource`와 `EntityManager`를 필드로 갖고, 주입받는다.
+- row에 해당하는 클래스에 `@Entity`를 붙인다.
+- PK에는 `@Id`, 생성되는 값에는 `@GeneratedValue`를 붙인다... 아마?
+- `Service`에는 `@Transactional`를 붙인다. JPA를 통한 모든 데이터 변경은 트랜잭션 안에서 실행해야 한다. 오류 발생 시 롤백하고, 정상 종료시 커밋한다.
+- `Repository`는 `EntityManager em`를 필드로 갖고 있으며 생성시에 주입받는다.
+
+### insert
+
+`em.persist(Entity)`를 사용한다.
+
+### select
+
+`em.createQuery(sql, Entity)`를 사용한다.  
+`sql = "select m from Member m where m.name = :name"`  
+`.getReslutList()`: 결과를 리스트로 반환  
+`.setParameter(name, value)`: 값 설정
+
+## Spring Data JPA
+
+- `JpaRepository`와 `MemberRepository`(사용자 구현)를 상속하는 interface를 만든다...
+- `findByName()` 같은 메소드 이름으로 찾는 값을 정할 수 있다.
+- `Configuration` 변경
+  - `MemberRepository`를 필드로 갖고 생성시에 주입받는다.
+
+## AOP (Aspect Oriented Programming)
+
+- 핵심 관심 사항과 공통 관심 사항을 분리
+  - 서비스 로직의 소요 시간을 측정하는 것 등이 공통 관심 사항이다.
+
+```java
+@Component
+@Aspect
+public class TimeTraceAop {
+
+    @Around("execution(* hello.hellospring..*(..))")
+    public Object execute(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis();
+
+        System.out.println("START: " + joinPoint.toString());
+
+        try {
+            return joinPoint.proceed();
+        } finally {
+            long finish = System.currentTimeMillis();
+            long timeMs = finish - start;
+
+            System.out.println("END: " + joinPoint.toString() + " " + timeMs + "ms");
+
+        }
+    }
+}
+```
