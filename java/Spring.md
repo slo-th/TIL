@@ -1,6 +1,4 @@
-# Spring framework 입문
-
-[인프런 스프링 입문 - 코드로 배우는 스프링 부트, 웹 MVC, DB 접근 기술](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EC%9E%85%EB%AC%B8-%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8/)
+# Spring framework
 
 ## 시작하기
 
@@ -94,14 +92,21 @@ java -jar hello-spring-0.0.1-SNAPSHOT.jar
 
 ## 테스트 케이스 작성
 
+> `Ctrl + Shift + T` 단축키로 테스트 코드로 이동하거나 생성 가능  
+> test 코드는 배포되지 않음
+
 1. 테스트할 클래스명 끝에 "Test"를 붙여 클래스 생성
 2. 테스트할 메소드를 `@Test` 어노테이션을 붙여 작성
 3. given, when, then 으로 나누어 구현
+4. 필요한 경우 `@DisplayName()`으로 표시될 이름을 정할 수 있다.
 
 - `@AfterEach`: 각각의 테스트 메소드가 종료될 때마다 이 메소드를 실행
 - `@BeforeEach`: 테스트 메소드가 실행되기 전에 실행
-- `assertThat(want).isEqualTo(got)` 방식으로 체크
-- `assertThrows()` : 예외 체크
+- `org.assertj.core.api.Assertions`
+  - `.assertThat(want).isEqualTo(got)` : equals()와 같음
+  - `.assertThat(want).isSameAs(got)` : == 연산자와 같음
+  - `.assertThat(want).isInstanceOf(got)` : instanceof 연산자와 같음
+- `org.junit.jupiter.api.Assertions.assertThrows(Class, executable)` : Exception 체크
 
 ### 통합 테스트 케이스
 
@@ -122,6 +127,22 @@ java -jar hello-spring-0.0.1-SNAPSHOT.jar
 
 1. SpringConfig 클래스를 만들고 `@Configuration`을 붙인다.
 2. 스프링 빈으로 등록할 객체를 반환하는 public 메소드를 `@Bean`과 함께 생성한다.
+
+> `@Configuration`클래스의 `@Bean`메소드 들은 `CGLIB` 라이브러리를 통해 싱글톤 패턴으로 조작된다.
+
+## 스프링 빈 조회
+
+`AnnotationConfigApplicationContext`: 자바 코드로 만든 ac(ApplicationContext)  
+`GenericXmlApplicationContext` : xml파일로 만든 ac
+
+`ac.getBean()` 메소드로 Bean을 얻을 수 있음  
+> 부모 타입으로 조회시 자식을 모두 가져옴.  
+>> 자식이 둘 이상 있으면 중복 오류가 발생함.
+>> 빈 이름을 지정해서 피할 수 있음.
+
+`ac.getBeansOfType()` 메소드로 class에 해당하는 Bean의 Map을 가져올 수 있음.  
+`ac.getBeanDefinitionNames()` 메소드로 정의된 이름의 배열을 가져올 수 있음.
+> `beanDefinition.getRole()` 메소드로 사용자 정의 Bean(`BeanDefinition.ROLE_APPLICATION`)과 비교 가능
 
 ## 스프링 DB 접근 기술
 
