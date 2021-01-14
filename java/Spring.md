@@ -103,9 +103,9 @@ java -jar hello-spring-0.0.1-SNAPSHOT.jar
 - `@AfterEach`: 각각의 테스트 메소드가 종료될 때마다 이 메소드를 실행
 - `@BeforeEach`: 테스트 메소드가 실행되기 전에 실행
 - `org.assertj.core.api.Assertions`
-  - `.assertThat(want).isEqualTo(got)` : equals()와 같음
-  - `.assertThat(want).isSameAs(got)` : == 연산자와 같음
-  - `.assertThat(want).isInstanceOf(got)` : instanceof 연산자와 같음
+  - `.assertThat(actual).isEqualTo(expected)` : equals()와 같음
+  - `.assertThat(actual).isSameAs(expected)` : == 연산자와 같음
+  - `.assertThat(actual).isInstanceOf(expected)` : instanceof 연산자와 같음
 - `org.junit.jupiter.api.Assertions.assertThrows(Class, executable)` : Exception 체크
 
 ### 통합 테스트 케이스
