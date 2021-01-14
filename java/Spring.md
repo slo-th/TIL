@@ -120,8 +120,37 @@ java -jar hello-spring-0.0.1-SNAPSHOT.jar
 ### 컴포넌트 스캔과 자동 의존관계
 
 - `@Component` : 스프링 빈으로 자동 등록
-  - `@Controller`, `@Service`, `@Repository`는 `@Component`를 포함하고 있음.
+  - `@Controller`, `@Service`, `@Repository`, `@Configuration`는 `@Component`를 포함하고 있음.
 - `@AutoWired` : 해당 스프링 빈을 컨테이너에서 찾아서 넣어준다.
+- `@ComponentScan` : `@Component`가 붙어있는 클래스를 스캔하여 스프링 빈으로 등록함.
+  - `excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Configuration.class)` : `@Configuration` 어노테이션이 붙은 클래스를 제외
+    - `FilterType.ANNOTATION` : default. 애노테이션을 인식
+    - `FilterType.ASSIGNABLE_TYPE` : 타입. 자식 포함
+    - `FilterType.ASPECTJ` : AspectJ 패턴
+    - `FilterType.REGEX` : 정규표현식
+    - `FilterType.CUSTOM` : 인터페이스를 구현해서 처리
+  - `basePackages` : 탐색할 패키지의 시작 위치를 지정. default는 `@ComponentScan`이 붙은 클래스의 패키지 위치. 권장은 프로젝트 루트에 Config Class를 위치시키기.
+  - 스프링 부트의 `@SpringBootApplication` 안에 `@ComponentScan`이 있다.
+
+#### 어노테이션 만들기
+
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface MyIncludeComponent {
+}
+```
+
+#### 같은 빈 이름 충돌
+
+자동 빈 등록 vs 자동 빈 등록  
+`ConflictingBeanDefinitionException`예외 발생
+
+수동 빈 등록 vs 자동 빈 등록  
+수동 빈이 자동 빈을 오버라이드함.
+
+스프링 부트에서는 수동 빈과 자동 빈이 충돌하면 오류를 발생시킨다.
 
 ### 자바 코드로 직접 스프링 빈 등록하기
 
@@ -143,6 +172,34 @@ java -jar hello-spring-0.0.1-SNAPSHOT.jar
 `ac.getBeansOfType()` 메소드로 class에 해당하는 Bean의 Map을 가져올 수 있음.  
 `ac.getBeanDefinitionNames()` 메소드로 정의된 이름의 배열을 가져올 수 있음.
 > `beanDefinition.getRole()` 메소드로 사용자 정의 Bean(`BeanDefinition.ROLE_APPLICATION`)과 비교 가능
+
+## 의존관계 주입
+
+1. 생성자 주입
+2. 수정자(setter) 주입
+3. 필드 주입
+4. 일반 메서드 주입
+
+### 생성자 주입
+
+생성자에 `@Autowired` 붙여서 사용  
+생성자 호출 시점에 딱 1번만 호출됨. **불변, 필수**  
+생성자가 한 개일 경우 `@Autowired`생략 가능
+
+### 수정자 주입
+
+setter에 `@Autowired` 붙여서 사용  
+변경 가능성이 있을 때 사용
+
+### 필드 주입
+
+쓰지 말자... 테스트 코드에서나 쓰자.
+
+`@Autowired`의 기본 동작은 주입할 대상이 없으면 오류가 발생함.
+
+1. `required = false` 사용
+2. 형식 인수에 `@Nullable` 붙이기
+3. 형식 인수 `Optional<>`로 감싸기
 
 ## 스프링 DB 접근 기술
 
