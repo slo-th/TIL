@@ -1,5 +1,10 @@
 # Java api
 
+## 목차 <!-- omit in toc -->
+
+- [Optional](#optional)
+- [Stream](#stream)
+
 ## Optional
 
 객체가 null이 될 수 있을 때 객체를 Optional로 감싸서 사용한다. 코드 가독성 향상 등의 효과가 있음.
